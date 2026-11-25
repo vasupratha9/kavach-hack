@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kavach – AI Scam Shield</title>
+  <meta name="description" content="Check an Instagram seller, ad, message, link or live phone call for scams before you pay. If you were scammed, get a step-by-step recovery plan.">
+  <meta name="theme-color" content="#3b2fc9">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="/styles.css?v=1">
+  <script src="/app.js?v=1" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <a class="brand" href="/" aria-label="Kavach home">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 4 7v8c0 7.4 5.1 13.6 12 15 6.9-1.4 12-7.6 12-15V7L16 2Z" fill="currentColor"/><path d="m10.5 16 3.8 3.8 7.2-7.6" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Kavach</span>
+      </a>
+      <div class="topbar-actions">
+        <label class="lang">
+          <span class="visually-hidden">Language for AI answers</span>
+          <select id="language">
+            <option value="en">English</option>
+            <option value="hi">हिन्दी</option>
+            <option value="ta">தமிழ்</option>
+            <option value="te">తెలుగు</option>
+            <option value="bn">বাংলা</option>
+            <option value="mr">मराठी</option>
+            <option value="kn">ಕನ್ನಡ</option>
+            <option value="ml">മലയാളം</option>
+            <option value="gu">ગુજરાતી</option>
+            <option value="pa">ਪੰਜਾਬੀ</option>
+            <option value="ur">اردو</option>
+            <option value="es">Español</option>
+            <option value="ar">العربية</option>
+          </select>
+        </label>
+        <a class="sos" href="tel:1930" aria-label="Scammed? Call the National Cyber Crime Helpline 1930">
+          <span class="sos-dot" aria-hidden="true"></span> Scammed? <strong>1930</strong>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="wrap hero-inner">
+        <p class="eyebrow">AI scam shield for real life</p>
+        <h1>Check before you pay.</h1>
+        <p class="lede">That Instagram kurti shop, the "customs officer" on the phone, the job offer on WhatsApp. Kavach checks sellers, ads, messages, links and <em>live calls</em> in seconds, and shows exactly why.</p>
+        <ul class="hero-stats" aria-label="What Kavach checks">
+          <li><strong>Screenshots</strong><span>read by Gemini</span></li>
+          <li><strong>Domain age</strong><span>from the registry</span></li>
+          <li><strong>Live calls</strong><span>scam-script alerts</span></li>
+          <li><strong>Recovery</strong><span>1930 + complaint drafts</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="wrap">
+      <div class="tabs" role="tablist" aria-label="What do you want to check?">
+        <button class="tab" role="tab" id="tab-seller" aria-controls="panel-seller" aria-selected="true" data-tab="seller">
+          <span class="tab-icon" aria-hidden="true">🛍️</span><span><strong>Seller or ad</strong><small>Instagram, Facebook, website</small></span>
+        </button>
+        <button class="tab" role="tab" id="tab-message" aria-controls="panel-message" aria-selected="false" tabindex="-1" data-tab="message">
+          <span class="tab-icon" aria-hidden="true">💬</span><span><strong>Message or link</strong><small>SMS, WhatsApp, email</small></span>
+        </button>
+        <button class="tab" role="tab" id="tab-call" aria-controls="panel-call" aria-selected="false" tabindex="-1" data-tab="call">
+          <span class="tab-icon" aria-hidden="true">📞</span><span><strong>Live call guard</strong><small>Listens for scam scripts</small></span>
+        </button>
+        <button class="tab tab-danger" role="tab" id="tab-recover" aria-controls="panel-recover" aria-selected="false" tabindex="-1" data-tab="recover">
+          <span class="tab-icon" aria-hidden="true">🆘</span><span><strong>I got scammed</strong><small>What to do right now</small></span>
+        </button>
+      </div>
+
+      <!-- Seller / ad -->
+      <section class="panel card" role="tabpanel" id="panel-seller" aria-labelledby="tab-seller">
+        <form id="seller-form" novalidate>
+          <h2 class="panel-title">Is this seller legit?</h2>
+          <p class="panel-sub">Add the seller's handle or website and screenshots of their profile, ad or chat. The more you add, the sharper the check.</p>
+
+          <div class="field">
+            <label for="seller-subject">Instagram @handle or website</label>
+            <input id="seller-subject" name="subject" type="text" autocomplete="off" spellcheck="false" maxlength="200" placeholder="@trendy_kurtis_hub or trendykurtis.shop">
+          </div>
+
+          <div class="field">
+            <span class="label" id="seller-shots-label">Screenshots <small>(profile, ad, comments or chat · up to 3)</small></span>
+            <div class="dropzone" data-dropzone="seller" tabindex="0" role="button" aria-describedby="seller-shots-label seller-shots-hint">
+              <input type="file" accept="image/png,image/jpeg,image/webp" multiple hidden data-file-input>
+              <span class="drop-icon" aria-hidden="true">📷</span>
+              <span><strong>Add screenshots</strong> · drop, tap or paste (Ctrl+V)</span>
+            </div>
+            <p class="hint" id="seller-shots-hint">Tip: on Instagram, open the profile → ⋯ → <em>About this account</em> and screenshot it. It shows when the account joined and its old usernames.</p>
+            <ul class="thumbs" data-thumbs="seller" aria-label="Added screenshots"></ul>
+          </div>
+
+          <fieldset class="field">
+            <legend class="label">What did you notice? <small>(optional)</small></legend>
+            <div class="chips" id="seller-flags"></div>
+          </fieldset>
+
+          <div class="field">
+            <label for="seller-text">Anything else? <small>(price, payment terms, what they said)</small></label>
+            <textarea id="seller-text" name="text" rows="3" maxlength="6000" placeholder="e.g. 3 kurtis for ₹399, prepaid only, pay on GPay to 98xxxxxx10"></textarea>
+          </div>
+
+          <button class="btn btn-primary btn-lg" type="submit"><span aria-hidden="true">🛡️</span> Check this seller</button>
+        </form>
+      </section>
+
+      <!-- Message / link -->
+      <section class="panel card" role="tabpanel" id="panel-message" aria-labelledby="tab-message" hidden>
+        <form id="message-form" novalidate>
+          <h2 class="panel-title">Is this message a scam?</h2>
+          <p class="panel-sub">Paste the SMS, WhatsApp message, email, link, or what a caller said. You can also add screenshots.</p>
+          <div class="field">
+            <label for="message-text">Message, link or call script</label>
+            <textarea id="message-text" rows="6" maxlength="6000" placeholder="e.g. Dear customer, your SBI KYC has expired and your account will be blocked today. Update now: http://sbi-kyc-update.xyz"></textarea>
+          </div>
+          <div class="examples" aria-label="Try an example">
+            <span class="hint">Try:</span>
+            <button type="button" class="chip chip-example" data-example="Hello, this is FedEx. A parcel in your name containing 5 passports and MDMA was seized by Mumbai customs. I am connecting you to the CBI cyber cell. You are under digital arrest, stay on the video call and do not tell anyone.">Digital arrest call</button>
+            <button type="button" class="chip chip-example" data-example="Part time job! Earn ₹3000 daily by liking YouTube videos. Join our Telegram task group: t.me/earn_daily_tasks. Prepaid task gives 30% profit.">Task job offer</button>
+            <button type="button" class="chip chip-example" data-example="Congrats! You have won ₹25,000 cashback from PhonePe. Scan the QR and enter your UPI PIN to receive the reward within 10 minutes: bit.ly/pp-reward">Cashback QR</button>
+          </div>
+          <div class="field">
+            <span class="label" id="message-shots-label">Screenshots <small>(optional · up to 3)</small></span>
+            <div class="dropzone" data-dropzone="message" tabindex="0" role="button" aria-describedby="message-shots-label">
+              <input type="file" accept="image/png,image/jpeg,image/webp" multiple hidden data-file-input>
+              <span class="drop-icon" aria-hidden="true">📷</span>
+              <span><strong>Add screenshots</strong> · drop, tap or paste (Ctrl+V)</span>
+            </div>
+            <ul class="thumbs" data-thumbs="message" aria-label="Added screenshots"></ul>
+          </div>
+          <button class="btn btn-primary btn-lg" type="submit"><span aria-hidden="true">🛡️</span> Check this message</button>
+        </form>
+      </section>
+
+      <!-- Live call guard -->
+      <section class="panel card" role="tabpanel" id="panel-call" aria-labelledby="tab-call" hidden>
+        <h2 class="panel-title">Live call guard</h2>
+        <p class="panel-sub">On a suspicious call? Put it on <strong>speaker</strong> and tap Start. Kavach listens for scam scripts (fake police, "digital arrest", OTP requests, refund tricks) and warns you instantly.</p>
+        <div class="call-grid">
+          <div class="call-main">
+            <div class="call-controls">
+              <button class="btn btn-primary btn-lg" id="call-start" type="button"><span aria-hidden="true">🎙️</span> Start listening</button>
+              <button class="btn btn-ghost" id="call-stop" type="button" hidden>Stop</button>
+              <span class="listening" id="call-listening" hidden><span class="pulse" aria-hidden="true"></span> Listening…</span>
+            </div>
+            <p class="hint" id="call-support"></p>
+            <div class="transcript" id="call-transcript" aria-live="off" aria-label="Call transcript"><span class="placeholder">The conversation will appear here.</span></div>
+            <label class="field">
+              <span class="label">Or type what the caller is saying</span>
+              <input id="call-type" type="text" maxlength="500" placeholder="e.g. sir your account will be blocked, tell me the OTP">
+            </label>
+          </div>
+          <aside class="call-side" aria-labelledby="call-risk-title">
+            <h3 id="call-risk-title" class="visually-hidden">Live risk</h3>
+            <div class="meter" id="call-meter" data-level="low">
+              <div class="meter-value"><span id="call-risk">0</span><small>/100</small></div>
+              <div class="meter-label" id="call-risk-label">Waiting for the call</div>
+              <div class="meter-bar"><span id="call-risk-bar"></span></div>
+            </div>
+            <div class="call-alerts" id="call-alerts" role="alert" aria-live="assertive"></div>
+            <button class="btn btn-secondary" id="call-analyse" type="button" disabled>Get the full AI analysis</button>
+          </aside>
+        </div>
+        <p class="privacy-note">🔒 Speech is turned into text by your browser's speech service. Kavach does not record or store audio.</p>
+      </section>
+
+      <!-- Recovery -->
+      <section class="panel card" role="tabpanel" id="panel-recover" aria-labelledby="tab-recover" hidden>
+        <form id="recover-form" novalidate>
+          <h2 class="panel-title">You got scammed. Let's act fast.</h2>
+          <p class="panel-sub">It is not your fault. Scammers are professionals. Answer four quick questions and get the exact steps, in the right order, with ready-to-send complaints.</p>
+          <div class="grid-2">
+            <div class="field">
+              <label for="r-type">What happened?</label>
+              <select id="r-type">
+                <option value="shopping">Paid an online seller, nothing came</option>
+                <option value="upi">UPI / QR / "refund" payment trick</option>
+                <option value="otp">Shared OTP, PIN or installed an app</option>
+                <option value="impersonation">Fake police / CBI / bank caller</option>
+                <option value="job">Job or task scam</option>
+                <option value="investment">Investment / trading scam</option>
+                <option value="card">Card used without permission</option>
+                <option value="other">Something else</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="r-paid">How did the money go?</label>
+              <select id="r-paid">
+                <option value="upi">UPI (GPay, PhonePe, Paytm…)</option>
+                <option value="card">Debit / credit card</option>
+                <option value="netbanking">Net banking / bank transfer</option>
+                <option value="wallet">Wallet</option>
+                <option value="cash">Cash</option>
+                <option value="none">No money lost yet</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="r-when">When did you pay?</label>
+              <select id="r-when">
+                <option value="0.5">Less than 1 hour ago</option>
+                <option value="12">Today</option>
+                <option value="48">1 to 3 days ago</option>
+                <option value="240">More than 3 days ago</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="r-amount">Amount (₹)</label>
+              <input id="r-amount" type="number" inputmode="numeric" min="0" max="1000000000" placeholder="e.g. 1200">
+            </div>
+          </div>
+          <div class="field">
+            <label for="r-seller">Who scammed you? <small>(@handle, number, UPI ID or website)</small></label>
+            <input id="r-seller" type="text" maxlength="200" autocomplete="off" spellcheck="false">
+          </div>
+          <div class="field">
+            <label for="r-details">Short description <small>(optional)</small></label>
+            <textarea id="r-details" rows="2" maxlength="1500" placeholder="e.g. Ordered 3 kurtis from an Instagram ad, paid by UPI, they blocked me after payment"></textarea>
+          </div>
+          <button class="btn btn-danger btn-lg" type="submit">Get my recovery plan</button>
+        </form>
+      </section>
+
+      <!-- Status + results -->
+      <div id="status" class="status" role="status" aria-live="polite" hidden></div>
+      <section id="results" class="results" aria-labelledby="results-title" tabindex="-1" hidden></section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <p><strong>Kavach</strong> gives guidance, not a guarantee. It never asks for OTPs, PINs or passwords. In an emergency call <a href="tel:1930">1930</a> or visit <a href="https://cybercrime.gov.in" rel="noopener noreferrer" target="_blank">cybercrime.gov.in</a>.</p>
+      <p class="footer-meta">Powered by Google Gemini · Built for PromptWars</p>
+    </div>
+  </footer>
+</body>
+</html>

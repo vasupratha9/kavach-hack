@@ -1,0 +1,17 @@
+{
+  "name": "kavach",
+  "version": "1.0.0",
+  "description": "Kavach - an AI scam shield that checks Instagram sellers, ads, messages and live calls before you pay, and guides recovery if you were scammed.",
+  "main": "server.js",
+  "private": true,
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --env-file=.env server.js",
+    "test": "node --test",
+    "test:coverage": "node --test --experimental-test-coverage"
+  }
+}

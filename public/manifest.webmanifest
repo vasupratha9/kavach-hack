@@ -1,0 +1,12 @@
+{
+  "name": "Kavach – AI Scam Shield",
+  "short_name": "Kavach",
+  "description": "Check Instagram sellers, ads, messages, links and live calls for scams before you pay.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f6f5fb",
+  "theme_color": "#3b2fc9",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
