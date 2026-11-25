@@ -19,7 +19,6 @@ function createKavach({ config = loadConfig(), staticFiles = new Map(), fetchImp
       apiKey: config.geminiApiKey, model: config.geminiModel, search: config.geminiSearch, timeoutMs: config.upstreamTimeoutMs, fetchImpl, cache,
     }),
     limiter: createRateLimiter({ windowMs: config.rateLimitWindowMs, max: config.rateLimitMax }),
-    scanLimiter: createRateLimiter({ windowMs: config.rateLimitWindowMs, max: config.rateLimitMax * 6 }),
     staticFiles,
     cache,
     fetchImpl,

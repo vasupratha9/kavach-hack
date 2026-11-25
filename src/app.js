@@ -8,7 +8,7 @@
 
 const signals = require('./signals');
 const links = require('./links');
-const { validateCheck, validateScan, validateRecovery, LANGUAGES } = require('./validate');
+const { validateCheck, validateRecovery, LANGUAGES } = require('./validate');
 const { recoveryPlan, fallbackDrafts, OFFICIAL } = require('./recovery');
 const { serveStatic } = require('./static');
 
@@ -19,7 +19,7 @@ const SECURITY_HEADERS = Object.freeze({
   'x-content-type-options': 'nosniff',
   'x-frame-options': 'DENY',
   'referrer-policy': 'no-referrer',
-  'permissions-policy': 'microphone=(self), camera=(), geolocation=(), payment=()',
+  'permissions-policy': 'microphone=(), camera=(), geolocation=(), payment=()',
   'cross-origin-opener-policy': 'same-origin',
   'cross-origin-resource-policy': 'same-origin',
   'strict-transport-security': 'max-age=31536000; includeSubDomains',
@@ -121,7 +121,7 @@ function nextSteps(level, mode) {
     : ['Do not pay in advance.', 'Ask for Cash on Delivery or buy through a marketplace with buyer protection.', 'If you must pay, use a credit card (chargeback protection), never a personal UPI ID.', 'Report the profile so others are protected.'];
 }
 
-function createApp({ gemini, limiter, scanLimiter = limiter, staticFiles, cache = null, fetchImpl = globalThis.fetch, safeBrowsingApiKey = '', lookupTimeoutMs = 5000, maxBodyBytes = 32 * 1024, maxUploadBytes = 4 * 1024 * 1024, logger = jsonLogger }) {
+function createApp({ gemini, limiter, staticFiles, cache = null, fetchImpl = globalThis.fetch, safeBrowsingApiKey = '', lookupTimeoutMs = 5000, maxBodyBytes = 32 * 1024, maxUploadBytes = 4 * 1024 * 1024, logger = jsonLogger }) {
   async function safely(label, promise) {
     try {
       return await promise;
@@ -139,7 +139,6 @@ function createApp({ gemini, limiter, scanLimiter = limiter, staticFiles, cache 
     // 1. Instant rule-based findings from everything the user typed.
     const typed = `${check.subject}\n${check.text}`;
     hits.push(...signals.scanText(typed).map((h) => ({ ...h, source: 'message scan' })));
-    hits.push(...check.flags.map((id) => ({ id, source: 'you' })));
     const typedEntities = signals.extractEntities(typed);
     const subjectHandle = /^@?[a-z0-9._]{2,30}$/i.test(check.subject) && !check.subject.includes('.') ? [`@${check.subject.replace(/^@/, '').toLowerCase()}`] : [];
     typedEntities.handles = [...new Set([...subjectHandle, ...typedEntities.handles])];
@@ -212,11 +211,6 @@ function createApp({ gemini, limiter, scanLimiter = limiter, staticFiles, cache 
     });
   }
 
-  async function handleScan(req, res) {
-    const { text } = validateScan(await readJsonBody(req, maxBodyBytes));
-    const verdict = signals.quickScan(text);
-    sendJson(res, 200, { risk: verdict.risk, level: verdict.level, label: verdict.label, redFlags: verdict.redFlags.map(({ id, label, tip, evidence }) => ({ id, label, tip, evidence })) });
-  }
 
   async function handleRecover(req, res) {
     const input = validateRecovery(await readJsonBody(req, maxBodyBytes));
@@ -230,7 +224,6 @@ function createApp({ gemini, limiter, scanLimiter = limiter, staticFiles, cache 
   const routes = {
     'GET /api/health': (req, res) => sendJson(res, 200, { status: 'ok', ai: gemini.enabled ? 'gemini' : 'rules-only', safeBrowsing: Boolean(safeBrowsingApiKey) }),
     'POST /api/check': handleCheck,
-    'POST /api/scan': handleScan,
     'POST /api/recover': handleRecover,
   };
 
@@ -247,9 +240,8 @@ function createApp({ gemini, limiter, scanLimiter = limiter, staticFiles, cache 
           const known = Object.keys(routes).some((key) => key.endsWith(` ${pathname}`));
           throw known ? new HttpError(405, 'Method not allowed') : new HttpError(404, 'Not found');
         }
-        // The live call guard sends many tiny requests, so it has its own, more generous limit.
         if (req.method === 'POST') {
-          const verdict = (pathname === '/api/scan' ? scanLimiter : limiter).check(clientId(req));
+          const verdict = limiter.check(clientId(req));
           if (!verdict.allowed) {
             throw new HttpError(429, 'Too many checks. Please wait a moment and try again.', { 'retry-after': String(verdict.retryAfterSeconds) });
           }

@@ -153,7 +153,7 @@ class GeminiError extends Error {
 }
 
 function createGeminiClient({
-  apiKey, model = DEFAULT_MODELS, search = true, timeoutMs = 25000, fetchImpl = globalThis.fetch, cache = null, now = () => Date.now(),
+  apiKey, model = DEFAULT_MODELS, search = true, timeoutMs = 14000, fetchImpl = globalThis.fetch, cache = null, now = () => Date.now(), retryDelayMs = 1500,
 } = {}) {
   const enabled = Boolean(apiKey);
   const models = parseModels(model);
@@ -177,8 +177,23 @@ function createGeminiClient({
     return response.json();
   }
 
-  /** Structured JSON generation, trying each model in order on retryable failures. */
+  /**
+   * Structured JSON generation, trying each model in order on retryable failures.
+   * If every model is briefly overloaded (503/500), pause once and try the chain again.
+   */
   async function generate(system, parts, schema, temperature) {
+    const started = now();
+    try {
+      return await generateOnce(system, parts, schema, temperature);
+    } catch (err) {
+      const overloaded = err instanceof GeminiError && (err.status === 503 || err.status === 500);
+      if (!overloaded || now() - started > 8000) throw err;
+      await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
+      return generateOnce(system, parts, schema, temperature);
+    }
+  }
+
+  async function generateOnce(system, parts, schema, temperature) {
     let lastError;
     for (const modelName of models) {
       try {
@@ -207,7 +222,7 @@ function createGeminiClient({
 
   async function analyze(check, ruleFindings, languageName) {
     if (!enabled) return null;
-    const data = { mode: check.mode, subject: check.subject, text: check.text, userTicked: check.flags, ruleFindings };
+    const data = { mode: check.mode, subject: check.subject, text: check.text, ruleFindings };
     const fingerprint = { data, images: check.images.map((img) => crypto.createHash('sha256').update(img.data).digest('hex')), languageName };
     return cached('analyze', fingerprint, async () => {
       const task = check.mode === 'seller'

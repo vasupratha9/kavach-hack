@@ -47,7 +47,7 @@ const SIGNALS = Object.freeze([
   { id: 'secrecy', weight: 18, label: 'Tells you not to tell anyone', tip: 'Being told to keep it secret is a classic sign of a scam. Tell a family member now.',
     patterns: [/\b(don'?t tell|do not tell|keep (this|it) (secret|confidential)|don'?t disconnect|stay on (the )?(call|video))\b/i] },
 
-  // --- Seller observations (user can tick these; Gemini reads them from screenshots) ---
+  // --- Seller observations (Gemini reads these from screenshots and descriptions) ---
   { id: 'prepaid_only', weight: 20, observable: true, label: 'Prepaid only, no Cash on Delivery', tip: 'Insist on COD or a marketplace with buyer protection for a seller you have never bought from.',
     patterns: [/\b(prepaid only|only prepaid|no cod|cod (is )?not available|advance payment|full payment (first|in advance)|pay first)\b/i] },
   { id: 'personal_payment', weight: 18, observable: true, label: 'Payment to a personal UPI ID or phone number', tip: 'Real brands use a payment gateway. Paying a personal UPI ID gives you no buyer protection.' },
@@ -154,10 +154,5 @@ function score(hits) {
   };
 }
 
-/** Fast, AI-free scan used by the live call guard: runs in well under a millisecond. */
-function quickScan(text) {
-  const hits = scanText(text).map((h) => ({ ...h, source: 'live' }));
-  return score(hits);
-}
 
-module.exports = { SIGNALS, BY_ID, scanText, extractEntities, score, quickScan, LEVELS };
+module.exports = { SIGNALS, BY_ID, scanText, extractEntities, score, LEVELS };

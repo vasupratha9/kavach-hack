@@ -50,19 +50,18 @@ test('health endpoint reports AI status with security headers', async () => {
     assert.match(res.headers.get('content-security-policy'), /frame-ancestors 'none'/);
     assert.equal(res.headers.get('x-content-type-options'), 'nosniff');
     assert.equal(res.headers.get('x-frame-options'), 'DENY');
-    assert.match(res.headers.get('permissions-policy'), /microphone=\(self\)/);
+    assert.match(res.headers.get('permissions-policy'), /microphone=\(\)/);
     assert.equal(res.headers.get('cache-control'), 'no-store');
   });
 });
 
-test('seller check merges rules, AI observations, screenshot links and domain age into one verdict', async () => {
+test('seller check merges rules, Gemini observations, screenshot links and domain age into one verdict', async () => {
   await withServer({}, async (base) => {
-    const res = await postJson(`${base}/api/check`, { mode: 'seller', subject: '@shop_x', text: 'prepaid only, no COD. Order at amaz0n-deals.xyz', flags: ['price_too_low'] });
+    const res = await postJson(`${base}/api/check`, { mode: 'seller', subject: '@shop_x', text: 'prepaid only, no COD. Order at amaz0n-deals.xyz' });
     assert.equal(res.status, 200);
     const data = await res.json();
     const flags = Object.fromEntries(data.redFlags.map((f) => [f.id, f.source]));
     assert.equal(flags.prepaid_only, 'message scan');
-    assert.equal(flags.price_too_low, 'you');
     assert.equal(flags.comments_off, 'Gemini');
     assert.equal(flags.lookalike_domain, 'link check');
     assert.equal(flags.domain_very_new, 'domain registry');
@@ -97,15 +96,6 @@ test('grounded web complaints raise the risk and are cited', async () => {
   });
 });
 
-test('live scan is instant and rule-based', async () => {
-  await withServer({ gemini: fakeGemini({ analyze: async () => { throw new Error('must not be called'); } }) }, async (base) => {
-    const data = await (await postJson(`${base}/api/scan`, { text: 'Sir install AnyDesk and tell me the OTP' })).json();
-    assert.ok(data.risk >= 50);
-    assert.deepEqual(data.redFlags.map((f) => f.id).sort(), ['otp_request', 'remote_access']);
-    assert.ok(data.redFlags[0].tip);
-  });
-});
-
 test('recovery returns ordered steps and AI drafts, with template fallback', async () => {
   await withServer({}, async (base) => {
     const data = await (await postJson(`${base}/api/recover`, { scamType: 'shopping', paidVia: 'upi', hoursAgo: 1, amount: 999 })).json();
@@ -127,7 +117,7 @@ test('rejects bad input with clear 4xx errors', async () => {
     assert.equal((await postJson(`${base}/api/check`, { text: 'x', mode: 'evil' })).status, 400);
     assert.equal((await fetch(`${base}/api/check`, { method: 'POST', headers: { 'content-type': 'text/plain' }, body: 'x' })).status, 415);
     assert.equal((await postJson(`${base}/api/check`, { text: 'x'.repeat(2000) })).status, 413);
-    assert.equal((await postJson(`${base}/api/scan`, { text: 'x'.repeat(500) })).status, 413, 'small routes have a small body limit');
+    assert.equal((await postJson(`${base}/api/recover`, { details: 'x'.repeat(500) })).status, 413, 'small routes have a small body limit');
     assert.equal((await fetch(`${base}/api/check`)).status, 405);
     assert.equal((await fetch(`${base}/api/nope`)).status, 404);
   });

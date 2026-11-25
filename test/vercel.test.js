@@ -6,13 +6,12 @@ const http = require('node:http');
 
 // Every Vercel route module must export the same ready-to-use (req, res) handler.
 const check = require('../api/check');
-const scan = require('../api/scan');
 const recover = require('../api/recover');
 const health = require('../api/health');
 
 test('Vercel routes share one handler instance', () => {
   assert.equal(typeof check, 'function');
-  for (const route of [scan, recover, health]) assert.equal(route, check);
+  for (const route of [recover, health]) assert.equal(route, check);
 });
 
 test('Vercel handler serves the API with security headers', async () => {

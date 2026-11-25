@@ -29,25 +29,7 @@
     set(key, value) { try { localStorage.setItem(key, value); } catch { /* private mode */ } },
   };
 
-  const SELLER_FLAGS = [
-    ['prepaid_only', 'Prepaid only, no COD'],
-    ['personal_payment', 'Pay to a personal UPI / number'],
-    ['price_too_low', 'Price too good to be true'],
-    ['comments_off', 'Comments turned off'],
-    ['new_account', 'New or renamed account'],
-    ['bad_reviews_seen', 'Comments say "not received"'],
-    ['stolen_photos', 'Photos look copied'],
-    ['dm_for_price', '"DM for price"'],
-    ['off_platform', 'Moves chat to WhatsApp / Telegram'],
-    ['no_contact', 'No address or return policy'],
-    ['fake_engagement', 'Many followers, few real likes'],
-  ];
-  const GOOD_FLAGS = [
-    ['cod_available', 'Offers Cash on Delivery'],
-    ['tagged_customers', 'Real customers tag them'],
-    ['verified_badge', 'Verified badge'],
-  ];
-  const SPEECH_LANG = { en: 'en-IN', hi: 'hi-IN', ta: 'ta-IN', te: 'te-IN', bn: 'bn-IN', mr: 'mr-IN', kn: 'kn-IN', ml: 'ml-IN', gu: 'gu-IN', pa: 'pa-IN', ur: 'ur-IN', es: 'es-ES', ar: 'ar-SA' };
+  const LANGS = new Set(['en', 'hi', 'ta', 'te', 'bn', 'mr', 'kn', 'ml', 'gu', 'pa', 'ur', 'es', 'ar']);
   const SCAM_TYPE_LABEL = {
     fake_online_shop: 'Fake online shop', non_delivery_seller: 'Non-delivery seller', digital_arrest: '"Digital arrest" scam', bank_kyc: 'Bank / KYC scam',
     upi_payment: 'UPI payment trick', otp_theft: 'OTP theft', job_task: 'Job / task scam', investment: 'Investment scam', lottery_prize: 'Lottery / prize scam',
@@ -63,7 +45,7 @@
 
   /* ---------------- Language ---------------- */
   const savedLang = storage.get('kavach-lang');
-  if (savedLang && SPEECH_LANG[savedLang]) languageSelect.value = savedLang;
+  if (savedLang && LANGS.has(savedLang)) languageSelect.value = savedLang;
   languageSelect.addEventListener('change', () => storage.set('kavach-lang', languageSelect.value));
   const lang = () => languageSelect.value;
 
@@ -92,15 +74,6 @@
       }
     });
   });
-
-  /* ---------------- Seller flag chips ---------------- */
-  const flagBox = $('#seller-flags');
-  const chip = ([id, label], good) => el('button', {
-    type: 'button', class: good ? 'chip chip-good' : 'chip', 'aria-pressed': 'false', 'data-flag': id,
-    onclick: (e) => e.currentTarget.setAttribute('aria-pressed', String(e.currentTarget.getAttribute('aria-pressed') !== 'true')),
-  }, good ? '✓ ' : '', label);
-  SELLER_FLAGS.forEach((f) => flagBox.append(chip(f, false)));
-  GOOD_FLAGS.forEach((f) => flagBox.append(chip(f, true)));
 
   /* ---------------- Screenshots: pick, drop, paste; resized on-device ---------------- */
   async function toCompressedDataUrl(file) {
@@ -202,12 +175,11 @@
       mode: 'seller',
       subject: $('#seller-subject').value.trim(),
       text: $('#seller-text').value.trim(),
-      flags: $$('[data-flag][aria-pressed="true"]', flagBox).map((b) => b.dataset.flag),
       images: images.seller,
       language: lang(),
     };
-    if (!payload.subject && !payload.text && !payload.images.length && !payload.flags.length) {
-      showStatus('Add the seller\'s @handle, a website, a screenshot, or tick what you noticed.', 'error');
+    if (!payload.subject && !payload.text && !payload.images.length) {
+      showStatus('Add the seller\'s @handle, website, a screenshot, or what they told you.', 'error');
       $('#seller-subject').focus();
       return;
     }
@@ -216,7 +188,7 @@
 
   $('#message-form').addEventListener('submit', (e) => {
     e.preventDefault();
-    const payload = { mode: 'message', subject: '', text: $('#message-text').value.trim(), flags: [], images: images.message, language: lang() };
+    const payload = { mode: 'message', subject: '', text: $('#message-text').value.trim(), images: images.message, language: lang() };
     if (!payload.text && !payload.images.length) {
       showStatus('Paste the message or add a screenshot first.', 'error');
       $('#message-text').focus();
@@ -422,135 +394,6 @@
         el('div', { class: 'actions' }, el('button', { type: 'button', class: 'btn btn-ghost btn-sm', onclick: () => window.print() }, 'Print / save as PDF')))));
     showResults(nodes);
   }
-
-  /* ---------------- Live call guard ---------------- */
-  const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  const callStart = $('#call-start');
-  const callStop = $('#call-stop');
-  const transcriptBox = $('#call-transcript');
-  const alertsBox = $('#call-alerts');
-  const analyseBtn = $('#call-analyse');
-  let recognizer = null;
-  let listening = false;
-  let finalText = '';
-  let seenAlerts = new Set();
-  let lastEvidence = [];
-  let scanTimer = null;
-
-  if (!Recognition) {
-    $('#call-support').textContent = 'Your browser cannot listen to calls (try Chrome or Edge). You can still type what the caller says below.';
-    callStart.disabled = true;
-  }
-
-  function renderTranscript(interim = '') {
-    transcriptBox.replaceChildren();
-    if (!finalText && !interim) { transcriptBox.append(el('span', { class: 'placeholder' }, 'The conversation will appear here.')); return; }
-    // Highlight matched scam phrases safely: split text into plain and <mark> nodes.
-    const phrases = lastEvidence.filter(Boolean).map((p) => p.toLowerCase());
-    let rest = finalText;
-    while (rest) {
-      const lower = rest.toLowerCase();
-      let best = -1;
-      let len = 0;
-      for (const p of phrases) {
-        const at = lower.indexOf(p);
-        if (at !== -1 && (best === -1 || at < best)) { best = at; len = p.length; }
-      }
-      if (best === -1) { transcriptBox.append(rest); break; }
-      transcriptBox.append(rest.slice(0, best), el('mark', {}, rest.slice(best, best + len)));
-      rest = rest.slice(best + len);
-    }
-    if (interim) transcriptBox.append(' ', el('span', { class: 'interim' }, interim));
-    transcriptBox.scrollTop = transcriptBox.scrollHeight;
-  }
-
-  async function scanCall() {
-    if (!finalText.trim()) return;
-    try {
-      const data = await api('/api/scan', { text: finalText.slice(-6000) });
-      $('#call-risk').textContent = data.risk;
-      $('#call-risk-label').textContent = data.label;
-      $('#call-risk-bar').style.width = `${data.risk}%`;
-      $('#call-meter').dataset.level = data.level;
-      lastEvidence = data.redFlags.map((f) => f.evidence);
-      const fresh = data.redFlags.filter((f) => !seenAlerts.has(f.id));
-      fresh.forEach((f) => {
-        seenAlerts.add(f.id);
-        alertsBox.prepend(el('div', { class: 'call-alert' }, el('strong', {}, `⚠️ ${f.label}`), el('p', {}, f.tip)));
-      });
-      if (fresh.length && data.level !== 'low' && navigator.vibrate) navigator.vibrate([250, 120, 250]);
-      renderTranscript();
-    } catch { /* the guard keeps listening even if one scan fails */ }
-  }
-  const queueScan = () => { clearTimeout(scanTimer); scanTimer = setTimeout(scanCall, 350); };
-
-  function addSpeech(text) {
-    finalText = `${finalText} ${text}`.trim();
-    analyseBtn.disabled = false;
-    renderTranscript();
-    queueScan();
-  }
-
-  function startListening() {
-    recognizer = new Recognition();
-    recognizer.lang = SPEECH_LANG[lang()] || 'en-IN';
-    recognizer.continuous = true;
-    recognizer.interimResults = true;
-    recognizer.onresult = (event) => {
-      let interim = '';
-      for (let i = event.resultIndex; i < event.results.length; i += 1) {
-        const r = event.results[i];
-        if (r.isFinal) addSpeech(r[0].transcript);
-        else interim += r[0].transcript;
-      }
-      if (interim) renderTranscript(interim);
-    };
-    recognizer.onerror = (event) => {
-      if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
-        stopListening();
-        $('#call-support').textContent = 'Microphone permission was denied. Allow the microphone for this site, or type what the caller says below.';
-      }
-    };
-    // Browsers stop after silence; keep listening until the user presses Stop.
-    recognizer.onend = () => { if (listening) { try { recognizer.start(); } catch { /* already started */ } } };
-    recognizer.start();
-    listening = true;
-    callStart.hidden = true;
-    callStop.hidden = false;
-    $('#call-listening').hidden = false;
-    $('#call-support').textContent = '';
-  }
-
-  function stopListening() {
-    listening = false;
-    if (recognizer) { try { recognizer.stop(); } catch { /* ignore */ } }
-    callStart.hidden = false;
-    callStop.hidden = true;
-    $('#call-listening').hidden = true;
-    renderTranscript();
-  }
-
-  callStart.addEventListener('click', () => {
-    finalText = '';
-    seenAlerts = new Set();
-    lastEvidence = [];
-    alertsBox.replaceChildren();
-    try { startListening(); } catch { $('#call-support').textContent = 'Could not start the microphone. Type what the caller says below.'; }
-  });
-  callStop.addEventListener('click', stopListening);
-  $('#call-type').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && e.currentTarget.value.trim()) {
-      e.preventDefault();
-      addSpeech(e.currentTarget.value.trim());
-      e.currentTarget.value = '';
-    }
-  });
-  analyseBtn.addEventListener('click', () => {
-    stopListening();
-    selectTab('message');
-    $('#message-text').value = `Phone call transcript: ${finalText}`.slice(0, 6000);
-    $('#message-form').requestSubmit();
-  });
 
   /* ---------------- Offline shell ---------------- */
   if ('serviceWorker' in navigator && location.protocol === 'https:') {

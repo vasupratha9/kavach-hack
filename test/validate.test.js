@@ -2,13 +2,13 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { validateCheck, validateScan, validateRecovery, validateImages, cleanText, ValidationError } = require('../src/validate');
+const { validateCheck, validateRecovery, validateImages, cleanText, ValidationError } = require('../src/validate');
 
 const PNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
 
 test('validateCheck applies safe defaults and keeps allowed fields only', () => {
   const check = validateCheck({ subject: ' @seller ', text: 'hi', evil: 'x' });
-  assert.deepEqual(Object.keys(check).sort(), ['flags', 'images', 'language', 'mode', 'subject', 'text']);
+  assert.deepEqual(Object.keys(check).sort(), ['images', 'language', 'mode', 'subject', 'text']);
   assert.equal(check.mode, 'seller');
   assert.equal(check.language, 'en');
   assert.equal(check.subject, '@seller');
@@ -23,11 +23,6 @@ test('validateCheck requires something to check', () => {
 test('validateCheck rejects unknown modes and languages', () => {
   assert.throws(() => validateCheck({ text: 'x', mode: 'hack' }), /mode/);
   assert.throws(() => validateCheck({ text: 'x', language: 'xx' }), /language/);
-});
-
-test('flags are filtered to known observable signals', () => {
-  const check = validateCheck({ flags: ['prepaid_only', 'prepaid_only', 'otp_request', 'made_up', 7] });
-  assert.deepEqual(check.flags, ['prepaid_only']);
 });
 
 test('text is stripped of markup and control characters and capped', () => {
@@ -54,11 +49,6 @@ test('images are accepted only when the real file signature matches', () => {
 test('oversized images are rejected', () => {
   const big = `data:image/png;base64,${Buffer.alloc(2 * 1024 * 1024, 1).toString('base64')}`;
   assert.throws(() => validateImages([big]), /too large/);
-});
-
-test('validateScan requires text', () => {
-  assert.equal(validateScan({ text: ' share otp ' }).text, 'share otp');
-  assert.throws(() => validateScan({ text: '   ' }), /required/);
 });
 
 test('validateRecovery checks types, ranges and defaults', () => {

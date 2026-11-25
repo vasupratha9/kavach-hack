@@ -5,7 +5,6 @@
  * Gemini or an upstream service without passing through here.
  */
 
-const { SIGNALS } = require('./signals');
 
 class ValidationError extends Error {
   constructor(message) {
@@ -80,12 +79,6 @@ function validateImages(value) {
   });
 }
 
-function validateFlags(value) {
-  if (value === undefined || value === null) return [];
-  if (!Array.isArray(value)) throw new ValidationError('flags must be a list');
-  const allowed = new Set(SIGNALS.filter((s) => s.observable).map((s) => s.id));
-  return [...new Set(value.filter((f) => typeof f === 'string' && allowed.has(f)))];
-}
 
 function validateCheck(input) {
   const body = requireObject(input);
@@ -94,21 +87,14 @@ function validateCheck(input) {
     subject: cleanText(body.subject, LIMITS.subject, 'subject'),
     text: cleanText(body.text, LIMITS.text, 'text', { multiline: true }),
     images: validateImages(body.images),
-    flags: validateFlags(body.flags),
     language: oneOf(body.language, Object.keys(LANGUAGES), 'en', 'language'),
   };
-  if (!check.subject && !check.text && check.images.length === 0 && check.flags.length === 0) {
+  if (!check.subject && !check.text && check.images.length === 0) {
     throw new ValidationError('Add a profile handle, link, message or screenshot to check');
   }
   return check;
 }
 
-function validateScan(input) {
-  const body = requireObject(input);
-  const text = cleanText(body.text, LIMITS.text, 'text', { multiline: true });
-  if (!text) throw new ValidationError('text is required');
-  return { text };
-}
 
 function validateRecovery(input) {
   const body = requireObject(input);
@@ -129,5 +115,5 @@ function validateRecovery(input) {
 
 module.exports = {
   LANGUAGES, MODES, SCAM_TYPES, PAID_VIA, LIMITS, ValidationError,
-  cleanText, validateImages, validateFlags, validateCheck, validateScan, validateRecovery,
+  cleanText, validateImages, validateCheck, validateRecovery,
 };

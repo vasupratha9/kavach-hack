@@ -74,6 +74,21 @@ test('falls back to the next model on retryable errors but not on a bad key', as
   assert.equal(count, 1);
 });
 
+test('retries the model chain once when every model is overloaded', async () => {
+  let calls = 0;
+  const client = createGeminiClient({
+    apiKey: 'k', model: 'a-model,b-model', retryDelayMs: 1,
+    fetchImpl: async () => { calls += 1; return calls <= 2 ? jsonResponse({}, { status: 503 }) : modelReply(goodAnalysis); },
+  });
+  assert.equal((await client.analyze(validateCheck({ text: 'x' }), [], 'English')).scamType, 'fake_online_shop');
+  assert.equal(calls, 3);
+
+  let failing = 0;
+  const down = createGeminiClient({ apiKey: 'k', model: 'a-model', retryDelayMs: 1, fetchImpl: async () => { failing += 1; return jsonResponse({}, { status: 503 }); } });
+  await assert.rejects(down.analyze(validateCheck({ text: 'x' }), [], 'English'), /503/);
+  assert.equal(failing, 2, 'only one extra round');
+});
+
 test('sanitizeAnalysis caps output and rejects empty answers', () => {
   const clean = sanitizeAnalysis({ ...goodAnalysis, summary: 'x'.repeat(5000), scamType: 'made_up', redFlags: Array(20).fill({ flag: 'f', evidence: 'e' }) });
   assert.equal(clean.summary.length, 600);

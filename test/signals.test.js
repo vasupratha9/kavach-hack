@@ -2,7 +2,7 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { SIGNALS, scanText, extractEntities, score, quickScan } = require('../src/signals');
+const { SIGNALS, scanText, extractEntities, score } = require('../src/signals');
 
 const ids = (text) => scanText(text).map((h) => h.id);
 
@@ -43,7 +43,7 @@ test('understands common Hindi scam words', () => {
 
 test('ordinary messages raise no flags', () => {
   assert.deepEqual(ids('Hi, are we still meeting for lunch tomorrow at 1?'), []);
-  assert.equal(quickScan('Your order from the shop was delivered today. Thanks!').level, 'low');
+  assert.equal(score(scanText('Your order from the shop was delivered today. Thanks!')).level, 'low');
 });
 
 test('hits carry the matching phrase as evidence', () => {

@@ -4,15 +4,15 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Kavach – AI Scam Shield</title>
-  <meta name="description" content="Check an Instagram seller, ad, message, link or live phone call for scams before you pay. If you were scammed, get a step-by-step recovery plan.">
+  <meta name="description" content="Check an Instagram seller, ad, screenshot, message or link for scams before you pay. If you were scammed, get a step-by-step recovery plan.">
   <meta name="theme-color" content="#3b2fc9">
   <link rel="icon" href="/icon.svg" type="image/svg+xml">
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
-  <link rel="stylesheet" href="/styles.css?v=1">
-  <script src="/app.js?v=1" defer></script>
+  <link rel="stylesheet" href="/styles.css?v=2">
+  <script src="/app.js?v=2" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to main content</a>
@@ -54,11 +54,11 @@
       <div class="wrap hero-inner">
         <p class="eyebrow">AI scam shield for real life</p>
         <h1>Check before you pay.</h1>
-        <p class="lede">That Instagram kurti shop, the "customs officer" on the phone, the job offer on WhatsApp. Kavach checks sellers, ads, messages, links and <em>live calls</em> in seconds, and shows exactly why.</p>
+        <p class="lede">That Instagram kurti shop, the "customs officer" on the phone, the job offer on WhatsApp. Kavach checks sellers, ads, screenshots, messages and links in seconds, and shows <em>exactly why</em>.</p>
         <ul class="hero-stats" aria-label="What Kavach checks">
           <li><strong>Screenshots</strong><span>read by Gemini</span></li>
           <li><strong>Domain age</strong><span>from the registry</span></li>
-          <li><strong>Live calls</strong><span>scam-script alerts</span></li>
+          <li><strong>Look-alike links</strong><span>fake brand sites caught</span></li>
           <li><strong>Recovery</strong><span>1930 + complaint drafts</span></li>
         </ul>
       </div>
@@ -71,9 +71,6 @@
         </button>
         <button class="tab" role="tab" id="tab-message" aria-controls="panel-message" aria-selected="false" tabindex="-1" data-tab="message">
           <span class="tab-icon" aria-hidden="true">💬</span><span><strong>Message or link</strong><small>SMS, WhatsApp, email</small></span>
-        </button>
-        <button class="tab" role="tab" id="tab-call" aria-controls="panel-call" aria-selected="false" tabindex="-1" data-tab="call">
-          <span class="tab-icon" aria-hidden="true">📞</span><span><strong>Live call guard</strong><small>Listens for scam scripts</small></span>
         </button>
         <button class="tab tab-danger" role="tab" id="tab-recover" aria-controls="panel-recover" aria-selected="false" tabindex="-1" data-tab="recover">
           <span class="tab-icon" aria-hidden="true">🆘</span><span><strong>I got scammed</strong><small>What to do right now</small></span>
@@ -102,11 +99,6 @@
             <ul class="thumbs" data-thumbs="seller" aria-label="Added screenshots"></ul>
           </div>
 
-          <fieldset class="field">
-            <legend class="label">What did you notice? <small>(optional)</small></legend>
-            <div class="chips" id="seller-flags"></div>
-          </fieldset>
-
           <div class="field">
             <label for="seller-text">Anything else? <small>(price, payment terms, what they said)</small></label>
             <textarea id="seller-text" name="text" rows="3" maxlength="6000" placeholder="e.g. 3 kurtis for ₹399, prepaid only, pay on GPay to 98xxxxxx10"></textarea>
@@ -122,7 +114,7 @@
           <h2 class="panel-title">Is this message a scam?</h2>
           <p class="panel-sub">Paste the SMS, WhatsApp message, email, link, or what a caller said. You can also add screenshots.</p>
           <div class="field">
-            <label for="message-text">Message, link or call script</label>
+            <label for="message-text">Message or link</label>
             <textarea id="message-text" rows="6" maxlength="6000" placeholder="e.g. Dear customer, your SBI KYC has expired and your account will be blocked today. Update now: http://sbi-kyc-update.xyz"></textarea>
           </div>
           <div class="examples" aria-label="Try an example">
@@ -142,38 +134,6 @@
           </div>
           <button class="btn btn-primary btn-lg" type="submit"><span aria-hidden="true">🛡️</span> Check this message</button>
         </form>
-      </section>
-
-      <!-- Live call guard -->
-      <section class="panel card" role="tabpanel" id="panel-call" aria-labelledby="tab-call" hidden>
-        <h2 class="panel-title">Live call guard</h2>
-        <p class="panel-sub">On a suspicious call? Put it on <strong>speaker</strong> and tap Start. Kavach listens for scam scripts (fake police, "digital arrest", OTP requests, refund tricks) and warns you instantly.</p>
-        <div class="call-grid">
-          <div class="call-main">
-            <div class="call-controls">
-              <button class="btn btn-primary btn-lg" id="call-start" type="button"><span aria-hidden="true">🎙️</span> Start listening</button>
-              <button class="btn btn-ghost" id="call-stop" type="button" hidden>Stop</button>
-              <span class="listening" id="call-listening" hidden><span class="pulse" aria-hidden="true"></span> Listening…</span>
-            </div>
-            <p class="hint" id="call-support"></p>
-            <div class="transcript" id="call-transcript" aria-live="off" aria-label="Call transcript"><span class="placeholder">The conversation will appear here.</span></div>
-            <label class="field">
-              <span class="label">Or type what the caller is saying</span>
-              <input id="call-type" type="text" maxlength="500" placeholder="e.g. sir your account will be blocked, tell me the OTP">
-            </label>
-          </div>
-          <aside class="call-side" aria-labelledby="call-risk-title">
-            <h3 id="call-risk-title" class="visually-hidden">Live risk</h3>
-            <div class="meter" id="call-meter" data-level="low">
-              <div class="meter-value"><span id="call-risk">0</span><small>/100</small></div>
-              <div class="meter-label" id="call-risk-label">Waiting for the call</div>
-              <div class="meter-bar"><span id="call-risk-bar"></span></div>
-            </div>
-            <div class="call-alerts" id="call-alerts" role="alert" aria-live="assertive"></div>
-            <button class="btn btn-secondary" id="call-analyse" type="button" disabled>Get the full AI analysis</button>
-          </aside>
-        </div>
-        <p class="privacy-note">🔒 Speech is turned into text by your browser's speech service. Kavach does not record or store audio.</p>
       </section>
 
       <!-- Recovery -->
