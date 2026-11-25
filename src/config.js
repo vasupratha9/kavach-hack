@@ -19,7 +19,8 @@ function loadConfig(env = process.env) {
     geminiSearch: env.GEMINI_SEARCH !== 'off',
     // Optional Google Safe Browsing API key (free, from a Google Cloud project).
     safeBrowsingApiKey: env.SAFE_BROWSING_API_KEY || '',
-    upstreamTimeoutMs: num(env.UPSTREAM_TIMEOUT_MS, 25000),
+    // Per-model timeout: a stalled model hands over to the fallback model quickly.
+    upstreamTimeoutMs: num(env.UPSTREAM_TIMEOUT_MS, 14000),
     lookupTimeoutMs: num(env.LOOKUP_TIMEOUT_MS, 5000),
     maxBodyBytes: num(env.MAX_BODY_BYTES, 32 * 1024),
     maxUploadBytes: num(env.MAX_UPLOAD_BYTES, 4 * 1024 * 1024),
