@@ -257,6 +257,8 @@ input:focus, textarea:focus, select:focus { border-color: var(--primary); outlin
   .grid-2 { grid-template-columns: 1fr; }
   .verdict { grid-template-columns: 1fr; justify-items: start; }
   .sos { padding: 0 12px; }
+  .lang select { max-width: 104px; }
+  .topbar-actions { gap: 6px; }
   .sos-text { display: none; }
   .hero { padding: 32px 0 72px; }
   .btn-lg { width: 100%; }
